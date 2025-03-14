@@ -790,7 +790,7 @@ public class MainGUI extends JFrame {
             detailsPanel.add(lblNombre);
             detailsPanel.add(new JLabel("Codigo: " + userCode));
             detailsPanel.add(new JLabel("Username: " + username));
-            detailsPanel.add(new JLabel("Password: " + password));
+            
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
             String fechaNacimiento = sdf.format(new Date(nacimiento));
             detailsPanel.add(new JLabel("Nacimiento: " + fechaNacimiento));

@@ -1,0 +1,8 @@
+Codigo: 2
+Username: 1
+Password: 1
+Nombre: 1
+Nacimiento: 16/06/1990
+Descargas: 0
+Imagen: imagenes/FotoPrede.png
+Tipo: normal
