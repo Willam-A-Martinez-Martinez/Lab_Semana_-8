@@ -353,4 +353,362 @@ public class MainGUI extends JFrame {
             add(panelButtons, BorderLayout.CENTER);
         }
     }
+    private class AddGameDialog extends JDialog {
+        private JTextField tfTitulo, tfEdadMin, tfPrecio, tfImagen;
+        private JComboBox<String> cbSO;
+        private JButton btnAdd;
+
+        public AddGameDialog(Frame owner, Steam steam) {
+            super(owner, "Agregar videojuego", true);
+            setLayout(new GridBagLayout());
+            GridBagConstraints gbc = new GridBagConstraints();
+            gbc.insets = new Insets(5,5,5,5);
+            gbc.gridx = 0; gbc.gridy = 0;
+            add(new JLabel("Titulo:"), gbc);
+            gbc.gridx = 1;
+            tfTitulo = new JTextField(15);
+            add(tfTitulo, gbc);
+            gbc.gridx = 0; gbc.gridy = 1;
+            add(new JLabel("Sistema operativo:"), gbc);
+            gbc.gridx = 1;
+            cbSO = new JComboBox<>(new String[]{"W", "M", "L"});
+            add(cbSO, gbc);
+            gbc.gridx = 0; gbc.gridy = 2;
+            add(new JLabel("Edad minima:"), gbc);
+            gbc.gridx = 1;
+            tfEdadMin = new JTextField(5);
+            add(tfEdadMin, gbc);
+            gbc.gridx = 0; gbc.gridy = 3;
+            add(new JLabel("Precio:"), gbc);
+            gbc.gridx = 1;
+            tfPrecio = new JTextField(10);
+            add(tfPrecio, gbc);
+            gbc.gridx = 0; gbc.gridy = 4;
+            add(new JLabel("Ruta de imagen:"), gbc);
+            gbc.gridx = 1;
+            tfImagen = new JTextField(15);
+            add(tfImagen, gbc);
+            btnAdd = new JButton("Agregar");
+            btnAdd.addActionListener(new ActionListener(){
+                public void actionPerformed(ActionEvent e) {
+                    try {
+                        String titulo = tfTitulo.getText();
+                        char so = cbSO.getSelectedItem().toString().charAt(0);
+                        int edadMin = Integer.parseInt(tfEdadMin.getText());
+                        double precio = Double.parseDouble(tfPrecio.getText());
+                        String imagen = tfImagen.getText();
+                        steam.addGame(titulo, so, edadMin, precio, imagen);
+                        JOptionPane.showMessageDialog(AddGameDialog.this, "Videojuego agregado");
+                        dispose();
+                    } catch (Exception ex) {
+                        JOptionPane.showMessageDialog(AddGameDialog.this, "Error: " + ex.getMessage());
+                    }
+                }
+            });
+            gbc.gridx = 0; gbc.gridy = 5; gbc.gridwidth = 2;
+            add(btnAdd, gbc);
+            pack();
+            setLocationRelativeTo(owner);
+            setVisible(true);
+        }
+    }
+
+    private class UpdatePriceDialog extends JDialog {
+        private JTextField tfCode, tfNewPrice;
+        private JButton btnUpdate;
+
+        public UpdatePriceDialog(Frame owner, Steam steam) {
+            super(owner, "Modificar precio", true);
+            setLayout(new GridBagLayout());
+            GridBagConstraints gbc = new GridBagConstraints();
+            gbc.insets = new Insets(5,5,5,5);
+            gbc.gridx = 0; gbc.gridy = 0;
+            add(new JLabel("Codigo del videojuego:"), gbc);
+            gbc.gridx = 1;
+            tfCode = new JTextField(5);
+            add(tfCode, gbc);
+            gbc.gridx = 0; gbc.gridy = 1;
+            add(new JLabel("Nuevo precio:"), gbc);
+            gbc.gridx = 1;
+            tfNewPrice = new JTextField(10);
+            add(tfNewPrice, gbc);
+            btnUpdate = new JButton("Modificar");
+            btnUpdate.addActionListener(new ActionListener(){
+                public void actionPerformed(ActionEvent e) {
+                    try {
+                        int code = Integer.parseInt(tfCode.getText());
+                        double newPrice = Double.parseDouble(tfNewPrice.getText());
+                        steam.updatePriceFor(code, newPrice);
+                        JOptionPane.showMessageDialog(UpdatePriceDialog.this, "Precio actualizado");
+                        dispose();
+                    } catch (Exception ex) {
+                        JOptionPane.showMessageDialog(UpdatePriceDialog.this, "Error: " + ex.getMessage());
+                    }
+                }
+            });
+            gbc.gridx = 0; gbc.gridy = 2; gbc.gridwidth = 2;
+            add(btnUpdate, gbc);
+            pack();
+            setLocationRelativeTo(owner);
+            setVisible(true);
+        }
+    }
+
+    private class DeleteGameDialog extends JDialog {
+        private JTextField tfCode;
+        private JButton btnDelete;
+
+        public DeleteGameDialog(Frame owner, Steam steam) {
+            super(owner, "Eliminar videojuego", true);
+            setLayout(new GridBagLayout());
+            GridBagConstraints gbc = new GridBagConstraints();
+            gbc.insets = new Insets(5,5,5,5);
+            gbc.gridx = 0; gbc.gridy = 0;
+            add(new JLabel("Codigo del videojuego:"), gbc);
+            gbc.gridx = 1;
+            tfCode = new JTextField(5);
+            add(tfCode, gbc);
+            btnDelete = new JButton("Eliminar");
+            btnDelete.addActionListener(new ActionListener(){
+                public void actionPerformed(ActionEvent e) {
+                    try {
+                        int code = Integer.parseInt(tfCode.getText());
+                        boolean res = steam.deleteGame(code);
+                        if (res) {
+                            JOptionPane.showMessageDialog(DeleteGameDialog.this, "Videojuego eliminado");
+                        } else {
+                            JOptionPane.showMessageDialog(DeleteGameDialog.this, "Videojuego no encontrado");
+                        }
+                        dispose();
+                    } catch (Exception ex) {
+                        JOptionPane.showMessageDialog(DeleteGameDialog.this, "Error: " + ex.getMessage());
+                    }
+                }
+            });
+            gbc.gridx = 0; gbc.gridy = 1; gbc.gridwidth = 2;
+            add(btnDelete, gbc);
+            pack();
+            setLocationRelativeTo(owner);
+            setVisible(true);
+        }
+    }
+
+    private class DeletePlayerDialog extends JDialog {
+        private JTextField tfCode;
+        private JButton btnDelete;
+
+        public DeletePlayerDialog(Frame owner, Steam steam) {
+            super(owner, "Eliminar player", true);
+            setLayout(new GridBagLayout());
+            GridBagConstraints gbc = new GridBagConstraints();
+            gbc.insets = new Insets(5,5,5,5);
+            gbc.gridx = 0; gbc.gridy = 0;
+            add(new JLabel("Codigo del player:"), gbc);
+            gbc.gridx = 1;
+            tfCode = new JTextField(5);
+            add(tfCode, gbc);
+            btnDelete = new JButton("Eliminar");
+            btnDelete.addActionListener(new ActionListener(){
+                public void actionPerformed(ActionEvent e) {
+                    try {
+                        int code = Integer.parseInt(tfCode.getText());
+                        boolean res = steam.deletePlayer(code);
+                        if (res) {
+                            JOptionPane.showMessageDialog(DeletePlayerDialog.this, "Player eliminado");
+                        } else {
+                            JOptionPane.showMessageDialog(DeletePlayerDialog.this, "Player no encontrado");
+                        }
+                        dispose();
+                    } catch (Exception ex) {
+                        JOptionPane.showMessageDialog(DeletePlayerDialog.this, "Error: " + ex.getMessage());
+                    }
+                }
+            });
+            gbc.gridx = 0; gbc.gridy = 1; gbc.gridwidth = 2;
+            add(btnDelete, gbc);
+            pack();
+            setLocationRelativeTo(owner);
+            setVisible(true);
+        }
+    }
+
+    private class ReportClientDialog extends JDialog {
+        private JTextField tfCode;
+        private JButton btnReport;
+        private int clientCode = -1;
+
+        public ReportClientDialog(Frame owner, Steam steam) {
+            super(owner, "Reporte de cliente", true);
+            initComponents();
+        }
+
+        public ReportClientDialog(Frame owner, Steam steam, int code) {
+            super(owner, "Mi Perfil", true);
+            this.clientCode = code;
+            initComponents();
+            tfCode.setText(String.valueOf(code));
+            tfCode.setEditable(false);
+        }
+
+        private void initComponents() {
+            setLayout(new GridBagLayout());
+            GridBagConstraints gbc = new GridBagConstraints();
+            gbc.insets = new Insets(5,5,5,5);
+            gbc.gridx = 0; gbc.gridy = 0;
+            add(new JLabel("Codigo del cliente:"), gbc);
+            gbc.gridx = 1;
+            tfCode = new JTextField(5);
+            add(tfCode, gbc);
+            btnReport = new JButton("Generar reporte");
+            btnReport.addActionListener(new ActionListener(){
+                public void actionPerformed(ActionEvent e) {
+                    try {
+                        int code = Integer.parseInt(tfCode.getText());
+                        String reportFileName = "reporte_" + code + ".txt";
+                        steam.reportForClient(code, reportFileName);
+                        JOptionPane.showMessageDialog(ReportClientDialog.this, "Reporte generado (revisa la carpeta del usuario)");
+                        dispose();
+                    } catch (Exception ex) {
+                        JOptionPane.showMessageDialog(ReportClientDialog.this, "Error: " + ex.getMessage());
+                    }
+                }
+            });
+            gbc.gridx = 0; gbc.gridy = 1; gbc.gridwidth = 2;
+            add(btnReport, gbc);
+            pack();
+            setLocationRelativeTo(getOwner());
+            setVisible(true);
+        }
+    }
+
+    private class CatalogDialog extends JDialog {
+        public CatalogDialog(Frame owner, Steam steam) {
+            super(owner, "Catalogo de juegos", true);
+            setLayout(new BorderLayout());
+            JPanel catalogPanel = new JPanel();
+            catalogPanel.setLayout(new BoxLayout(catalogPanel, BoxLayout.Y_AXIS));
+            try {
+                RandomAccessFile raf = new RandomAccessFile("steam/games.stm", "rw");
+                raf.seek(0);
+                while (raf.getFilePointer() < raf.length()) {
+                    int code = raf.readInt();
+                    if (code == -1) {
+                        raf.readUTF();
+                        raf.readChar();
+                        raf.readInt();
+                        raf.readDouble();
+                        raf.readInt();
+                        raf.readUTF();
+                        continue;
+                    }
+                    String titulo = raf.readUTF();
+                    char so = raf.readChar();
+                    int edadMin = raf.readInt();
+                    double precio = raf.readDouble();
+                    int downloads = raf.readInt();
+                    String imagenPath = raf.readUTF();
+                    JPanel gamePanel = new JPanel(new BorderLayout(5,5));
+                    gamePanel.setBorder(BorderFactory.createLineBorder(Color.GRAY));
+                    ImageIcon icon = new ImageIcon(imagenPath);
+                    if(icon.getIconWidth() > 0) {
+                        Image img = icon.getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH);
+                        icon = new ImageIcon(img);
+                    } else {
+                        icon = new ImageIcon(new BufferedImage(100, 100, BufferedImage.TYPE_INT_RGB));
+                    }
+                    JLabel lblImage = new JLabel(icon);
+                    gamePanel.add(lblImage, BorderLayout.WEST);
+                    JPanel detailsPanel = new JPanel();
+                    detailsPanel.setLayout(new BoxLayout(detailsPanel, BoxLayout.Y_AXIS));
+                    JLabel lblTitulo = new JLabel("Titulo: " + titulo);
+                    lblTitulo.setFont(new Font("Arial", Font.BOLD, 14));
+                    detailsPanel.add(lblTitulo);
+                    detailsPanel.add(new JLabel("Codigo: " + code));
+                    detailsPanel.add(new JLabel("SO: " + so));
+                    detailsPanel.add(new JLabel("Edad Minima: " + edadMin));
+                    detailsPanel.add(new JLabel("Precio: $" + precio));
+                    detailsPanel.add(new JLabel("Descargas: " + downloads));
+                    gamePanel.add(detailsPanel, BorderLayout.CENTER);
+                    catalogPanel.add(gamePanel);
+                    catalogPanel.add(Box.createRigidArea(new Dimension(0,5)));
+                }
+                raf.close();
+            } catch (Exception ex) {
+                catalogPanel.add(new JLabel("Error: " + ex.getMessage()));
+            }
+            JScrollPane scrollPane = new JScrollPane(catalogPanel);
+            add(scrollPane, BorderLayout.CENTER);
+            JButton btnClose = new JButton("Cerrar");
+            btnClose.addActionListener(new ActionListener(){
+                public void actionPerformed(ActionEvent e) {
+                    dispose();
+                }
+            });
+            add(btnClose, BorderLayout.SOUTH);
+            pack();
+            setLocationRelativeTo(owner);
+            setVisible(true);
+        }
+    }
+
+    private class LibraryDialog extends JDialog {
+        public LibraryDialog(Frame owner, String username) {
+            super(owner, "Mi Biblioteca", true);
+            setLayout(new BorderLayout());
+            JPanel libraryPanel = new JPanel();
+            libraryPanel.setLayout(new BoxLayout(libraryPanel, BoxLayout.Y_AXIS));
+            File libFolder = new File("steam/" + username + "/biblioteca");
+            if(libFolder.exists() && libFolder.isDirectory()){
+                File[] files = libFolder.listFiles();
+                if(files != null && files.length > 0){
+                    for(File f : files){
+                        try {
+                            BufferedReader br = new BufferedReader(new FileReader(f));
+                            String titulo = br.readLine();
+                            String imagenPath = br.readLine();
+                            String precioStr = br.readLine();
+                            br.close();
+                            JPanel gamePanel = new JPanel(new BorderLayout(5,5));
+                            gamePanel.setBorder(BorderFactory.createLineBorder(Color.GRAY));
+                            ImageIcon icon = new ImageIcon(imagenPath);
+                            if(icon.getIconWidth() > 0) {
+                                Image img = icon.getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH);
+                                icon = new ImageIcon(img);
+                            } else {
+                                icon = new ImageIcon(new BufferedImage(100,100, BufferedImage.TYPE_INT_RGB));
+                            }
+                            JLabel lblImage = new JLabel(icon);
+                            gamePanel.add(lblImage, BorderLayout.WEST);
+                            JPanel detailsPanel = new JPanel();
+                            detailsPanel.setLayout(new BoxLayout(detailsPanel, BoxLayout.Y_AXIS));
+                            JLabel lblTitulo = new JLabel("Titulo: " + titulo);
+                            lblTitulo.setFont(new Font("Arial", Font.BOLD, 14));
+                            detailsPanel.add(lblTitulo);
+                            detailsPanel.add(new JLabel("Precio: $" + precioStr));
+                            gamePanel.add(detailsPanel, BorderLayout.CENTER);
+                            libraryPanel.add(gamePanel);
+                            libraryPanel.add(Box.createRigidArea(new Dimension(0,5)));
+                        } catch(Exception ex){
+                        }
+                    }
+                } else {
+                    libraryPanel.add(new JLabel("No hay juegos en tu biblioteca."));
+                }
+            } else {
+                libraryPanel.add(new JLabel("No hay juegos en tu biblioteca."));
+            }
+            JScrollPane scrollPane = new JScrollPane(libraryPanel);
+            add(scrollPane, BorderLayout.CENTER);
+            JButton btnClose = new JButton("Cerrar");
+            btnClose.addActionListener(new ActionListener(){
+                public void actionPerformed(ActionEvent e) {
+                    dispose();
+                }
+            });
+            add(btnClose, BorderLayout.SOUTH);
+            pack();
+            setLocationRelativeTo(owner);
+            setVisible(true);
+        }
+    }
 }
