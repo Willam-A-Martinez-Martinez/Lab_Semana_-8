@@ -8,13 +8,16 @@ package lab.semana.pkg8;
  *
  * @author DELL
  */
-public class LabSemana8 {
+public class Main {
 
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        // TODO code application logic here
+        javax.swing.SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                new MainGUI();
+            }
+        });
     }
-    
 }

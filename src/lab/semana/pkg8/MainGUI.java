@@ -711,4 +711,167 @@ public class MainGUI extends JFrame {
             setVisible(true);
         }
     }
+    
+    private class ProfileDialog extends JDialog {
+        public ProfileDialog(Frame owner, Steam steam, int userCode) {
+            super(owner, "Mi Perfil", true);
+            String username = "";
+            String password = "";
+            String nombre = "";
+            long nacimiento = 0;
+            int downloads = 0;
+            String imagenPath = "";
+            String tipoUsuario = "";
+            try {
+                RandomAccessFile rafPlayers = new RandomAccessFile("steam/player.stm", "rw");
+                rafPlayers.seek(0);
+                boolean found = false;
+                while(rafPlayers.getFilePointer() < rafPlayers.length()){
+                    int code = rafPlayers.readInt();
+                    if(code == -1) {
+                        rafPlayers.readUTF();
+                        rafPlayers.readUTF();
+                        rafPlayers.readUTF();
+                        rafPlayers.readLong();
+                        rafPlayers.readInt();
+                        rafPlayers.readUTF();
+                        rafPlayers.readUTF();
+                        continue;
+                    }
+                    if(code == userCode) {
+                        username = rafPlayers.readUTF();
+                        password = rafPlayers.readUTF();
+                        nombre = rafPlayers.readUTF();
+                        nacimiento = rafPlayers.readLong();
+                        downloads = rafPlayers.readInt();
+                        imagenPath = rafPlayers.readUTF();
+                        tipoUsuario = rafPlayers.readUTF();
+                        found = true;
+                        break;
+                    } else {
+                        rafPlayers.readUTF();
+                        rafPlayers.readUTF();
+                        rafPlayers.readUTF();
+                        rafPlayers.readLong();
+                        rafPlayers.readInt();
+                        rafPlayers.readUTF();
+                        rafPlayers.readUTF();
+                    }
+                }
+                rafPlayers.close();
+                if(!found) {
+                    JOptionPane.showMessageDialog(owner, "Usuario no encontrado");
+                    dispose();
+                    return;
+                }
+            } catch(Exception ex) {
+                JOptionPane.showMessageDialog(owner, "Error al leer perfil: " + ex.getMessage());
+                dispose();
+                return;
+            }
+            JPanel profilePanel = new JPanel(new BorderLayout(10,10));
+            String basePath = "imagenes/";
+            if(!imagenPath.startsWith(basePath)) {
+                imagenPath = basePath + imagenPath;
+            }
+            ImageIcon icon = new ImageIcon(imagenPath);
+            if(icon.getIconWidth() > 0) {
+                Image img = icon.getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH);
+                icon = new ImageIcon(img);
+            } else {
+                icon = new ImageIcon(new BufferedImage(100, 100, BufferedImage.TYPE_INT_RGB));
+            }
+            JLabel lblImage = new JLabel(icon);
+            profilePanel.add(lblImage, BorderLayout.WEST);
+            JPanel detailsPanel = new JPanel();
+            detailsPanel.setLayout(new BoxLayout(detailsPanel, BoxLayout.Y_AXIS));
+            JLabel lblNombre = new JLabel("Nombre: " + nombre);
+            lblNombre.setFont(new Font("Arial", Font.BOLD, 14));
+            detailsPanel.add(lblNombre);
+            detailsPanel.add(new JLabel("Codigo: " + userCode));
+            detailsPanel.add(new JLabel("Username: " + username));
+            detailsPanel.add(new JLabel("Password: " + password));
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+            String fechaNacimiento = sdf.format(new Date(nacimiento));
+            detailsPanel.add(new JLabel("Nacimiento: " + fechaNacimiento));
+            detailsPanel.add(new JLabel("Descargas: " + downloads));
+            detailsPanel.add(new JLabel("Tipo: " + tipoUsuario));
+            profilePanel.add(detailsPanel, BorderLayout.CENTER);
+            File userFolder = new File("steam/" + username);
+            if(!userFolder.exists()){
+                userFolder.mkdirs();
+            }
+            File profileReport = new File(userFolder, "perfil.txt");
+            try(PrintWriter pw = new PrintWriter(profileReport)) {
+                pw.println("Codigo: " + userCode);
+                pw.println("Username: " + username);
+                pw.println("Password: " + password);
+                pw.println("Nombre: " + nombre);
+                pw.println("Nacimiento: " + fechaNacimiento);
+                pw.println("Descargas: " + downloads);
+                pw.println("Imagen: " + imagenPath);
+                pw.println("Tipo: " + tipoUsuario);
+            } catch(IOException ioe) {
+                System.out.println("Error guardando perfil: " + ioe.getMessage());
+            }
+            JButton btnClose = new JButton("Cerrar");
+            btnClose.addActionListener(new ActionListener(){
+                public void actionPerformed(ActionEvent e) {
+                    dispose();
+                }
+            });
+            getContentPane().add(profilePanel, BorderLayout.CENTER);
+            getContentPane().add(btnClose, BorderLayout.SOUTH);
+            pack();
+            setLocationRelativeTo(owner);
+            setVisible(true);
+        }
+    }
+
+    private class DownloadDialog extends JDialog {
+        private JTextField tfCode, tfSO;
+        private JButton btnDownload;
+        private int userCode;
+
+        public DownloadDialog(Frame owner, Steam steam, int userCode) {
+            super(owner, "Descargar videojuego", true);
+            this.userCode = userCode;
+            setLayout(new GridBagLayout());
+            GridBagConstraints gbc = new GridBagConstraints();
+            gbc.insets = new Insets(5,5,5,5);
+            gbc.gridx = 0; gbc.gridy = 0;
+            add(new JLabel("Codigo del videojuego:"), gbc);
+            gbc.gridx = 1;
+            tfCode = new JTextField(5);
+            add(tfCode, gbc);
+            gbc.gridx = 0; gbc.gridy = 1;
+            add(new JLabel("Sistema operativo (Window/Mac/Linux):"), gbc);
+            gbc.gridx = 1;
+            tfSO = new JTextField(10);
+            add(tfSO, gbc);
+            btnDownload = new JButton("Descargar");
+            btnDownload.addActionListener(new ActionListener(){
+                public void actionPerformed(ActionEvent e) {
+                    try {
+                        int codeGame = Integer.parseInt(tfCode.getText());
+                        String so = tfSO.getText();
+                        boolean res = steam.downloadGame(codeGame, userCode, so);
+                        if (res) {
+                            JOptionPane.showMessageDialog(DownloadDialog.this, "Descarga exitosa");
+                        } else {
+                            JOptionPane.showMessageDialog(DownloadDialog.this, "No se pudo descargar el videojuego (posible compra previa)");
+                        }
+                        dispose();
+                    } catch (Exception ex) {
+                        JOptionPane.showMessageDialog(DownloadDialog.this, "Error: " + ex.getMessage());
+                    }
+                }
+            });
+            gbc.gridx = 0; gbc.gridy = 2; gbc.gridwidth = 2;
+            add(btnDownload, gbc);
+            pack();
+            setLocationRelativeTo(owner);
+            setVisible(true);
+        }
+    }
 }
